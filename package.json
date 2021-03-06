@@ -1,0 +1,68 @@
+{
+  "name": "not-final-cut",
+  "version": "0.1.0",
+  "description": "A video cutter built on purpose from https://blog.meathill.com/tools/idea-better-video-clipper.html",
+  "main": "index.js",
+  "scripts": {
+    "serve": "WEBPACK_DEV_SERVER=1 NODE_DEV=development webpack serve --config build/webpack.config.js",
+    "build": "NODE_DEV=production webpack --config build/webpack.config.prod.js",
+    "lint": "eslint --fix --ext=.js,.vue ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meathill/not-final-cut.git"
+  },
+  "keywords": [
+    "video cutter",
+    "video editor",
+    "ffmpeg"
+  ],
+  "author": "Meathill <meathill@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meathill/not-final-cut/issues"
+  },
+  "homepage": "https://github.com/meathill/not-final-cut#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bootstrap-icons": "^1.4.0",
+    "express": "^4.17.1",
+    "lodash": "^4.17.21",
+    "tailwindcss": "^2.0.3",
+    "vue": "^3.0.7",
+    "yargs": "^16.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.8",
+    "@babel/preset-env": "^7.13.9",
+    "@vue/compiler-sfc": "^3.0.7",
+    "autoprefixer": "^10.2.5",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
+    "copy-webpack-plugin": "^7.0.0",
+    "core-js": "^3.9.1",
+    "css-loader": "^5.1.1",
+    "css-minimizer-webpack-plugin": "^1.2.0",
+    "eslint": "^7.21.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-vue": "^7.5.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^4.5.1",
+    "mini-css-extract-plugin": "^1.3.4",
+    "postcss": "^8.2.4",
+    "postcss-loader": "^4.2.0",
+    "pug": "^3.0.2",
+    "pug-loader": "^2.4.0",
+    "pug-plain-loader": "^1.1.0",
+    "style-loader": "^2.0.0",
+    "stylus": "^0.54.8",
+    "stylus-loader": "^4.3.3",
+    "terser-webpack-plugin": "^5.1.1",
+    "vue-loader": "^16.1.2",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^5.18.0",
+    "webpack-bundle-analyzer": "^4.4.0",
+    "webpack-cli": "^4.4.0",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
