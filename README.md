@@ -29,7 +29,7 @@ export NFC_ALIYUN_SECRET=oooooooo
 export NFC_ALIYUN_APP_KEY=xoxoxoxo
 export NFC_ALIYUN_OSS=bucket
 export NFC_ALIYUN_REGION=cn-hangzhou
-export NFC_ALIYUN_DOMAIN=http://your-domain.com
+export NFC_URL_PREFIX=http://your-domain.com/path/name/
 export NFC_FFMPEG_PATH=/path/to/ffmpeg
 
 # start not-final-cut

@@ -4,8 +4,8 @@
   "description": "A video cutter built on purpose from https://blog.meathill.com/tools/idea-better-video-clipper.html",
   "main": "index.js",
   "scripts": {
-    "serve": "WEBPACK_DEV_SERVER=1 NODE_DEV=development webpack serve --config build/webpack.config.js",
-    "build": "NODE_DEV=production webpack --config build/webpack.config.prod.js",
+    "serve": "WEBPACK_DEV_SERVER=1 NODE_ENV=development webpack serve --config build/webpack.config.js",
+    "build": "NODE_ENV=production webpack --config build/webpack.config.prod.js",
     "lint": "eslint --fix --ext=.js,.vue ./"
   },
   "repository": {

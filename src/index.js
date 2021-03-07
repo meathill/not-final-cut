@@ -1,5 +1,5 @@
 import {createApp} from 'vue';
-import App from './ui';
+import App from './app';
 import './style/base.css';
 
 const index = createApp(App);

@@ -42,6 +42,14 @@ const config = {
         ],
       },
       {
+        test: /\.css$/,
+        use: [
+          isDevServer ? 'style-loader' : MiniCSSExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader',
+        ],
+      },
+      {
         test: /\.(webp|png|jpg|gif|svg|woff2|eot|woff|ttf|ico|mp4)$/,
         use: [
           {
@@ -65,6 +73,7 @@ const config = {
       '@': resolve(__dirname, '../src'),
     },
   },
+  target: 'web',
   plugins: [
     new VueLoaderPlugin(),
     new DefinePlugin({
@@ -81,9 +90,5 @@ const config = {
     }),
   ],
 };
-
-if (!isDevServer) {
-  config.entry.content = resolve(__dirname, '../src/content.js');
-}
 
 module.exports = config;
