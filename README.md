@@ -25,7 +25,11 @@ npm i not-final-cut -g
 
 # setup your aliyun account
 export NFC_ALIYUN_ID=xxxxxxxx
-export NFC_ALIYUN_KEY=oooooooo
+export NFC_ALIYUN_SECRET=oooooooo
+export NFC_ALIYUN_APP_KEY=xoxoxoxo
+export NFC_ALIYUN_OSS=bucket
+export NFC_ALIYUN_REGION=cn-hangzhou
+export NFC_ALIYUN_DOMAIN=http://your-domain.com
 export NFC_FFMPEG_PATH=/path/to/ffmpeg
 
 # start not-final-cut
@@ -39,12 +43,15 @@ Usage
 -----
 
 ```bash
--h              Print this help.
--i              Specify the input video.
---aliyun-id     Specify your Aliyun App ID
---aliyun-key    Specify your Aliyun App Secret key
---ffmpeg        Specify the path to FFMPEG
-
+-h                Print this help.
+-i                Specify the input video.
+--aliyun-id       Specify your Aliyun RAM AccessKey ID
+--aliyun-secret   Specify your Aliyun RAM AccessKey Secret key
+--aliyun-app-key  Specify your Aliyun NLS project app key
+--aliyun-oss      Specify your Aliyun OSS bucket
+--aliyun-region   Specify your Aliyun region
+--url-prefix      Specify URL prefix to find your uploaded wav file
+--ffmpeg          Specify the path to FFMPEG
 ```
 
 

@@ -3,6 +3,7 @@
 const yargs = require('yargs');
 const createProjectFromVideo = require("./lib/create-project");
 const createServer = require('./lib/server');
+const config = require('./lib/config');
 
 const {argv} = yargs.scriptName('nfc')
   .usage('$0 -i input.video [args]')
@@ -11,20 +12,44 @@ const {argv} = yargs.scriptName('nfc')
     .describe('i', 'the video you want to cut')
   .env('NFC_ALIYUN_ID')
     .option('aliyun-id', {
-      describe: 'Your Aliyun App ID',
+      describe: 'Your Aliyun RAM account AccessKey ID',
       demandOption: true,
       type: 'string'
     })
-  .env('NFC_ALIYUN_KEY')
-    .option('aliyun-key', {
-      describe: 'Your Aliyun App SecretKey',
+  .env('NFC_ALIYUN_SECRET')
+    .option('aliyun-secret', {
+      describe: 'Your Aliyun RAM account AccessKey Secret',
+      demandOption: true,
+      type: 'string',
+    })
+  .env('NFC_ALIYUN_APP_KEY')
+    .option('aliyun-app-key', {
+      describe: 'Your Aliyun NLS project app key',
+      demandOption: true,
+      type: 'string',
+    })
+  .env('NFC_ALIYUN_OSS')
+    .option('aliyun-oss', {
+      describe: 'OSS bucket to store audio file',
+      demandOption: true,
+      type: 'string',
+    })
+  .env('NFC_ALIYUN_REGION')
+    .option('aliyun-region', {
+      describe: 'Your Aliyun region',
+      demandOption: true,
+      type: 'string',
+    })
+  .env('NFC_URL_PREFIX')
+    .option('url-prefix', {
+      describe: 'URL prefix to find your uploaded wav file',
       demandOption: true,
       type: 'string',
     })
   .env('NFC_FFMPEG_PATH')
     .option('ffmpeg', {
       describe: 'The path to FFMPEG',
-      demandOption: true,
+      default: 'ffmpeg',
       type: 'string',
     })
   .option('p',{
@@ -38,11 +63,13 @@ const {argv} = yargs.scriptName('nfc')
   .demandOption('input', 'Please provide the video you want to cut')
   .help();
 
+config.set(argv);
+
 (async () => {
   console.log('[NFC] starting...');
-  const {input, aliyunId, aliyunKey, port} = argv;
-  const {project, projectFile} = await createProjectFromVideo(input, aliyunId, aliyunKey);
-  const server = await createServer(port, project, projectFile);
+  const {input} = argv;
+  const project = await createProjectFromVideo(input);
+  const server = await createServer(project, config);
 
   console.log('[NFC] Not Final Cut started. Please enjoy.');
 })();

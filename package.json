@@ -24,6 +24,9 @@
   },
   "homepage": "https://github.com/meathill/not-final-cut#readme",
   "dependencies": {
+    "@alicloud/nls-filetrans-2018-08-17": "^1.0.0",
+    "@alicloud/pop-core": "^1.7.10",
+    "ali-oss": "^6.13.2",
     "axios": "^0.21.1",
     "bootstrap-icons": "^1.4.0",
     "express": "^4.17.1",
