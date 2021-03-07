@@ -89,6 +89,12 @@ const config = {
       filename: 'style.css',
     }),
   ],
+  devServer: {
+    proxy: {
+      '/api': 'http://localhost:8888',
+      '/source': 'http://localhost:8888',
+    }
+  }
 };
 
 module.exports = config;
