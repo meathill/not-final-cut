@@ -1,0 +1,18 @@
+.bi
+  background-color currentColor
+  mask-size 1em
+  mask-repeat no-repeat
+  mask-position center
+
+  &::before
+    display inline-block
+    content ''
+    width 1em
+
+for $icon in check file-earmark-play-fill file-earmark-font-fill
+  $path = '../../node_modules/bootstrap-icons/icons/' + $icon + '.svg'
+  .bi-{$icon}
+    mask-image url($path)
+
+.bi-spin
+  mask-image url(../images/loading.svg)
