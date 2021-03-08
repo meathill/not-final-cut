@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const os = require('os');
+const {dirname} = require('path');
 const yargs = require('yargs');
 const createProjectFromVideo = require("./lib/create-project");
 const createServer = require('./lib/server');
@@ -59,8 +60,9 @@ config.set(argv);
   let {input} = argv;
   if (/^~\//.test(input)) {
     input = input.replace(/^~/, os.homedir);
-    config.set({input});
   }
+  const cwd = dirname(input);
+  config.set({input, cwd});
   const project = await createProjectFromVideo(input);
   await createServer(project);
   console.log('[NFC] Not Final Cut started. Please enjoy.');
