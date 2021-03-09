@@ -25,9 +25,9 @@
         enter-active-class="animated slideInDown",
         leave-active-class="animated slideOutUp",
       )
-        .alert.text-white.border.py-2.px-3.rounded-md(
+        .alert.text-white.py-2.px-3.rounded-md(
           v-if="message",
-          :class="status === 'success' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'",
+          :class="status === true ? 'bg-green-300' : 'bg-red-300'",
         ) {{message}}
 
       .action-bar.mt-2.flex
@@ -130,6 +130,7 @@ export default {
     const updatedAt = ref('');
     const page = ref(-1);
     let _sentences;
+    let _project;
 
     const subtitles = computed(() => {
       if (page.value < 0) {
@@ -187,7 +188,10 @@ export default {
       isSaving.value = true;
       try {
         const {data} = await axios.post('/api/save', {
-          Sentences: _sentences,
+          ..._project,
+          rawResult: {
+            Sentences: _sentences,
+          },
         });
         if (data.code !== 0) {
           message.value = data.message;
@@ -231,6 +235,7 @@ export default {
         createdAt: c,
         updatedAt: u,
         rawResult,
+        ...rest
       } = project.data;
       movieSrc.value = '/source/' + movie;
       title.value = movie;
@@ -238,16 +243,24 @@ export default {
       updatedAt.value = u;
       isLoading.value = false;
       const {Sentences, Words} = rawResult;
-      let wordIndex = 0;
-      for (const sentence of Sentences) {
-        let start = wordIndex;
-        while (Words[wordIndex] && Words[wordIndex].BeginTime < sentence.EndTime) {
-          wordIndex++;
+      if (Words) {
+        let wordIndex = 0;
+        for (const sentence of Sentences) {
+          let start = wordIndex;
+          while (Words[wordIndex] && Words[wordIndex].BeginTime < sentence.EndTime) {
+            wordIndex++;
+          }
+          sentence.words = Words.slice(start, wordIndex);
         }
-        sentence.words = Words.slice(start, wordIndex);
       }
       _sentences = reactive(Sentences);
       page.value = 0;
+      _project = {
+        movie,
+        createdAt: c,
+        updatedAt: u,
+        ...rest
+      };
 
       document.body.addEventListener('keydown', onKeyDown);
     });
