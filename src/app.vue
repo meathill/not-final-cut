@@ -17,27 +17,41 @@
       h1.text-lg.text-bold.mb-2 {{title}}
       p.mb-2 创建时间：
         time.text-gray-500(:datetime="createdAt") {{createdAt}}
-      p 更新时间：
+      p.mb-4 更新时间：
         time.text-gray-500(:datetime="updatedAt") {{updatedAt}}
 
-      .action-bar.mt-4.flex
-        button.w-32.py-2.rounded-md.border-2.border-green-400.bg-green-500.text-white(
+      transition(
+        name="alert-transition",
+        enter-active-class="animated slideInDown",
+        leave-active-class="animated slideOutUp",
+      )
+        .alert.text-white.border.py-2.px-3.rounded-md(
+          v-if="message",
+          :class="status === 'success' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'",
+        ) {{message}}
+
+      .action-bar.mt-2.flex
+        button.px-3.py-2.rounded-md.border-2.border-green-400.bg-green-500.text-white(
           type="button",
           @click="doSave",
           :disabled="isSaving",
         )
           i.bi.bi-spin.animate-spin.mr-2(v-if="isSaving")
           i.bi.bi-check.mr-2(v-else)
-          | 保存项目
+          | 保存项目 (
+          span.underline S
+          | )
 
-        button.w-32.py-2.rounded-md.border-2.border-blue-400.bg-blue-500.text-white.ml-3(
+        button.px-3.py-2.rounded-md.border-2.border-blue-400.bg-blue-500.text-white.ml-3(
           type="button",
           @click="doExport",
           :disabled="isExporting",
         )
           i.bi.bi-spin.animate-spin.mr-2(v-if="isExporting")
           i.bi.bi-file-earmark-play-fill.mr-2(v-else)
-          | 导出视频
+          | 导出视频 (
+          span.underline E
+          | )
 
         button.w-32.py-2.rounded-md.border-2.border-indigo-400.bg-indigo-500.text-white.ml-3(
           type="button",
@@ -46,11 +60,15 @@
         )
           i.bi.bi-spin.animate-spin.mr-2(v-if="isExportingSubtitles")
           i.bi.bi-file-earmark-font-fill.mr-2(v-else)
-          | 导出字幕
+          | 导出字幕 (
+          span.underline T
+          | )
 
 
     .flex-1.ml-3.border-2.border-gray-200.rounded-md.relative
-      h2.text-lg.text-bold.pl-3.py-4 调整字幕
+      header.flex.items-center.px-3
+        h2.text-lg.text-bold.py-4 调整字幕
+        .help.ml-auto.text-gray-500.text-sm 点击编辑，右键隐藏
       table.table.w-full
         thead
           tr
@@ -67,32 +85,36 @@
               small.text-gray-400 持续：
               strong.text-green-500.text-sm {{item.duration}}
             td.bg-pink-50.px-3.py-2.border-b-2.border-white
-              span.inline-block.px-1.cursor-pointer(
-                v-for="word in item.words",
-                class="border-2 border-transparent hover:border-red-400",
-                @click="doEdit($event, word)",
-              ) {{word.Word}}
-
-      .action-panel.bg-white.border-1.border-gray-300.p-2.absolute.rounded-md.flex(
-        v-if="current",
-      )
-        input.rounded-md.border-2.border-gray-400.width-8(
-          class="focus:border-blue-400 focus:ring-blue",
-          v-model="current.text",
-        )
-
-        button.rounded-md.width-4.border-1.border-blue-300(
-          type="button",
-          @click="doCutOff",
-        )
-
+              template(v-for="word in item.words")
+                span.px-1.cursor-pointer.border-2.border-transparent(
+                  class="hover:border-red-400",
+                  :class="[{'line-through text-gray-300': word.off}, word.isEdit ? 'hidden' : 'inline-block']",
+                  @click="doEdit(word, $event)",
+                  @contextmenu.prevent="doToggle(word)",
+                ) {{word.text || word.Word}}
+                input.rounded-md.border.px-1.inline-block.mx-1.subtitle-input(
+                  v-if="word.isEdit",
+                  v-model="word.text",
+                  @blur="doAcceptWord(word)",
+                  @keydown.esc="doCancelEdit(word)",
+                  @keydown.enter="doAcceptWord(word)",
+                  :style="'width:' + word.Word.length + 'em'",
+                )
 
 </template>
 
 <script>
 import axios from 'axios';
-import {computed, onMounted, ref} from 'vue';
+import {
+  computed,
+  reactive,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from 'vue';
 import {toHMS} from '@/utils/format';
+import {isMac} from "@/utils/helper";
 
 export default {
   setup() {
@@ -100,12 +122,13 @@ export default {
     const isSaving = ref(false);
     const isExporting = ref(false);
     const isExportingSubtitles = ref(false);
+    const status = ref(null);
+    const message = ref('');
     const movieSrc = ref('');
     const title = ref('');
     const createdAt = ref('');
     const updatedAt = ref('');
     const page = ref(-1);
-    const current = ref(null);
     let _sentences;
 
     const subtitles = computed(() => {
@@ -123,17 +146,29 @@ export default {
       });
     });
 
-    const doCutOff = () => {
-
+    const doToggle = (word) => {
+      word.off = !word.off;
     };
 
-    const doEdit = (event, word) => {
+    const doEdit = async (word, event) => {
       if (word.text === undefined) {
-        word.text = '';
+        word.text = word.Word;
       }
-      current.value = word;
+      word.isEdit = true;
       const {target} = event;
+      await nextTick();
+      const input = target.nextElementSibling;
+      input.focus();
+      input.select();
+    };
 
+    const doAcceptWord = word => {
+      word.Word = word.text;
+      word.isEdit = false;
+    };
+    const doCancelEdit = word => {
+      word.text = word.Word;
+      word.isEdit = false;
     };
 
     const doExport = () => {
@@ -145,13 +180,49 @@ export default {
     };
 
     const doSave = async() => {
+      if (isSaving.value) {
+        return;
+      }
+      status.value = message.value = null;
       isSaving.value = true;
-      const {data} = await axios.post('/api/save');
-      if (data.code !== 0) {
-        alert(data.msg);
+      try {
+        const {data} = await axios.post('/api/save', {
+          Sentences: _sentences,
+        });
+        if (data.code !== 0) {
+          message.value = data.message;
+        } else {
+          status.value = true;
+          message.value = '保存成功';
+        }
+      } catch (e) {
+        message.value = e.message;
       }
       isSaving.value = false;
     };
+
+    const onKeyDown = event => {
+      const {key, metaKey, ctrlKey} = event;
+      if (!(isMac ? metaKey : ctrlKey)) {
+        return;
+      }
+      if (/[set]/i.test(key)) {
+        event.preventDefault();
+      }
+      switch (key) {
+        case 's':
+          doSave();
+          break;
+
+        case 'e':
+          doExport();
+          break;
+
+        case 't':
+          doExportSubtitles();
+          break;
+      }
+    }
 
     onMounted(async() => {
       const project = await axios.get('/api/project.json');
@@ -167,7 +238,6 @@ export default {
       updatedAt.value = u;
       isLoading.value = false;
       const {Sentences, Words} = rawResult;
-      _sentences = Sentences;
       let wordIndex = 0;
       for (const sentence of Sentences) {
         let start = wordIndex;
@@ -176,7 +246,13 @@ export default {
         }
         sentence.words = Words.slice(start, wordIndex);
       }
+      _sentences = reactive(Sentences);
       page.value = 0;
+
+      document.body.addEventListener('keydown', onKeyDown);
+    });
+    onBeforeUnmount(() => {
+      document.body.removeEventListener('keydown', onKeyDown);
     });
 
     return {
@@ -184,16 +260,19 @@ export default {
       isSaving,
       isExporting,
       isExportingSubtitles,
+      status,
 
+      message,
       movieSrc,
       title,
       createdAt,
       updatedAt,
       subtitles,
-      current,
 
-      doCutOff,
+      doToggle,
       doEdit,
+      doAcceptWord,
+      doCancelEdit,
       doExport,
       doExportSubtitles,
       doSave,
