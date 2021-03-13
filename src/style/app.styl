@@ -5,6 +5,16 @@
 @import "~animate.css/source/sliding_entrances/slideInDown.css"
 @import "~animate.css/source/sliding_exits/slideOutUp.css"
 
+html, body, #app
+  height 100%
+
+#app
+  display flex
+  flex-direction column
+
+#main-content
+  max-height calc(100% - 52px)
+
 .line-through
   text-decoration-color red
 
