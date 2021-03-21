@@ -12,7 +12,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.m?js$/,
         use: 'babel-loader',
         exclude: /node_modules/,
       },
@@ -68,7 +68,7 @@ const config = {
   mode: 'development',
   devtool: 'eval-cheap-module-source-map',
   resolve: {
-    extensions: ['.js', '.json', '.vue'],
+    extensions: ['.js', '.mjs', '.json', '.vue'],
     alias: {
       '@': resolve(__dirname, '../src'),
     },

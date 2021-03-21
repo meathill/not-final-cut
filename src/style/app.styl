@@ -12,6 +12,9 @@ html, body, #app
   display flex
   flex-direction column
 
+#output
+  top 3.25rem
+
 #main-content
   max-height calc(100% - 52px)
 
@@ -20,3 +23,13 @@ html, body, #app
 
 .subtitle-input
   min-width 1.5em
+
+@media speech
+  .aria-hidden
+    display none
+
+.page-item span
+  pointer-events none
+
+.pre-wrap
+  white-space pre-wrap

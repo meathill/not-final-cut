@@ -11,16 +11,6 @@ nav.bg-blue-500.text-white.flex.py-2.items-center.px-3
   .mx-auto
     strong {{title}}
 
-  transition(
-    name="alert-transition",
-    enter-active-class="animated slideInDown",
-    leave-active-class="animated slideOutUp",
-  )
-    .alert.py-2.px-3.m-3.rounded-md.mr-3(
-      v-if="message",
-      :class="status === true ? 'bg-green-300' : 'bg-red-300'",
-    ) {{message}}
-
   .action-bar.flex.text-sm
     button.px-3.rounded.bg-green-500.leading-9.transition(
       class="hover:bg-green-600",
@@ -57,6 +47,27 @@ nav.bg-blue-500.text-white.flex.py-2.items-center.px-3
       | 导出字幕 (
       span.underline T
       | )
+
+transition(
+  name="alert-transition",
+  enter-active-class="animated slideInDown",
+  leave-active-class="animated slideOutUp",
+)
+  .alert.py-2.px-3.absolute.w-full(
+    v-if="message",
+    :class="status === true ? 'bg-green-300' : 'bg-red-300'",
+  ) {{message}}
+
+transition(
+  name="alert-transition",
+  enter-active-class="animated slideInDown",
+  leave-active-class="animated slideOutUp",
+)
+  details#output.py-2.px-3.bg-blue-100.absolute.w-full.z-10.max-h-half(v-if="exportLog")
+    summary
+      i.bi.bi-spin.mr-2(v-if="isExporting")
+      | {{exportMessage}}
+    pre.pre-wrap.bg-black.text-gray-200.font-mono.text-xs.py-2.px-3 {{exportLog}}
 
 .bi.bi-spin.text-7xl.mx-auto.my-5.mx-auto(v-if="isLoading")
 
@@ -102,22 +113,27 @@ nav.bg-blue-500.text-white.flex.py-2.items-center.px-3
                 @keydown.enter="doAcceptWord(word)",
                 :style="'width:' + word.Word.length + 'em'",
               )
+    bluebird-ui-pagination(
+      :total="total",
+      v-model="page",
+    )
 </template>
 
 <script>
 import axios from 'axios';
 import {
   computed,
-  reactive,
   ref,
   onMounted,
   onBeforeUnmount,
   nextTick,
 } from 'vue';
-import {toHMS} from '@/utils/format';
+const {toHMS} = require('@/utils/format');
 import {isMac} from "@/utils/helper";
+import BluebirdUiPagination from "@/components/pagination";
 
 export default {
+  components: {BluebirdUiPagination},
   setup() {
     const isLoading = ref(true);
     const isSaving = ref(false);
@@ -127,18 +143,17 @@ export default {
     const message = ref('');
     const movieSrc = ref('');
     const title = ref('');
-    const createdAt = ref('');
-    const updatedAt = ref('');
-    const page = ref(-1);
+    const page = ref(0);
+    const total = ref(0);
+    const exportMessage = ref('');
+    const exportLog = ref('');
     let _sentences;
     let _project;
+    let isChanged = false;
 
     const subtitles = computed(() => {
-      if (page.value < 0) {
-        return [];
-      }
-
-      return _sentences.slice(page.value, 20).map(item => {
+      const start = (page.value - 1) * 20;
+      return _sentences.value.slice(start, start + 20).map(item => {
         const {BeginTime, EndTime} = item;
         return {
           ...item,
@@ -149,6 +164,7 @@ export default {
     });
 
     const doToggle = (word) => {
+      isChanged = true;
       word.off = !word.off;
     };
 
@@ -165,6 +181,7 @@ export default {
     };
 
     const doAcceptWord = word => {
+      isChanged = true;
       word.Word = word.text;
       word.isEdit = false;
     };
@@ -173,11 +190,46 @@ export default {
       word.isEdit = false;
     };
 
-    const doExport = () => {
+    const doExport = async () => {
+      if (isChanged) {
+        if (confirm('字幕已被编辑，导出前需要先保存，是否继续？')) {
+          await doSave();
+        } else {
+          return;
+        }
+      }
 
+      isExporting.value = true;
+      exportMessage.value = '开始导出...';
+      let lastResponseLength = 0;
+      const request = {
+        onDownloadProgress({target: xhr}) {
+          const {responseText} = xhr;
+          const chunk = responseText.substring(lastResponseLength);
+          exportLog.value += chunk;
+          lastResponseLength = responseText.length;
+        },
+      };
+      try {
+        await axios.post('/api/export', null, request);
+        const match = exportLog.value.match(/\[(\w+)](.*)\[\/\1]/);
+        if (!match || match[1] === 'code') {
+          exportMessage.value = '导出视频失败。';
+        } else {
+          exportMessage.value = '导出成功。已为您切换视频，请在此预览。';
+          exportLog.value = match[2];
+        }
+      } catch (e) {
+        exportMessage.value = '导出视频失败。' + e.message;
+      }
+
+      isExporting.value = false;
     };
 
     const doExportSubtitles = () => {
+      if (isChanged && !confirm('字幕已被编辑，导出前需要先保存，是否继续？')) {
+        return;
+      }
 
     };
 
@@ -233,15 +285,11 @@ export default {
       const project = await axios.get('/api/project.json');
       const {
         movie,
-        createdAt: c,
-        updatedAt: u,
         rawResult,
         ...rest
       } = project.data;
       movieSrc.value = '/source/' + movie;
       title.value = movie;
-      createdAt.value = c;
-      updatedAt.value = u;
       isLoading.value = false;
       const {Sentences, Words} = rawResult;
       if (Words) {
@@ -254,12 +302,11 @@ export default {
           sentence.words = Words.slice(start, wordIndex);
         }
       }
-      _sentences = reactive(Sentences);
-      page.value = 0;
+      _sentences = ref(Sentences);
+      page.value = 1;
+      total.value = Sentences.length;
       _project = {
         movie,
-        createdAt: c,
-        updatedAt: u,
         ...rest
       };
 
@@ -277,11 +324,13 @@ export default {
       status,
 
       message,
+      exportMessage,
+      exportLog,
       movieSrc,
       title,
-      createdAt,
-      updatedAt,
       subtitles,
+      page,
+      total,
 
       doToggle,
       doEdit,

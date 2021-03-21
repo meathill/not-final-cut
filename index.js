@@ -10,9 +10,17 @@ const config = require('./lib/config');
 const {argv} = yargs.scriptName('nfc')
   .usage('$0 -i input.video [args]')
   .env('NFC')
-  .alias('i', 'input')
-    .nargs('i', 1)
-    .describe('i', 'the video you want to cut')
+  .option('input', {
+    alias: 'i',
+    nargs: 1,
+    describe: 'the video you want to cut',
+    demandOption: 'Please provide the video you want to cut',
+  })
+  .option('output', {
+    alias: 'o',
+    nargs: 1,
+    describe: 'edited video to output',
+  })
   .option('aliyun-id', {
     describe: 'Your Aliyun RAM account AccessKey ID',
     type: 'string'
@@ -50,7 +58,6 @@ const {argv} = yargs.scriptName('nfc')
   })
   .help('help')
   .alias('h', 'help')
-  .demandOption('input', 'Please provide the video you want to cut')
   .help();
 
 config.set(argv);

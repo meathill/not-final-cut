@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.pagination {
+  @apply flex p-2;
+}
+
+.page-item {
+  @apply border border-blue-300 leading-relaxed px-2 hover:bg-blue-50 rounded text-blue-500 cursor-pointer;
+}
+
+.page-item.active {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.page-item.disabled {
+  @apply border-gray-300 text-gray-300 hover:bg-white;
+}
+
+.page-item + .page-item {
+  margin-left: .25em;
+}
+
+.bi-spin {
+  @apply animate-spin;
+}
