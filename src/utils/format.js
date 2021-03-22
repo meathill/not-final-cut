@@ -9,6 +9,9 @@ function toHMS(ms) {
     index += 1;
     result.push(time);
   }
+  if (result.length === 0) {
+    result.push(0);
+  }
   return result.reverse().join(':') + '.' + ms;
 }
 

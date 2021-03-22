@@ -63,11 +63,11 @@ transition(
   enter-active-class="animated slideInDown",
   leave-active-class="animated slideOutUp",
 )
-  details#output.py-2.px-3.bg-blue-100.absolute.w-full.z-10.max-h-half(v-if="exportLog")
+  details#output.py-2.px-3.bg-blue-100.absolute.w-full.z-10(v-if="exportLog")
     summary
       i.bi.bi-spin.mr-2(v-if="isExporting")
       | {{exportMessage}}
-    pre.pre-wrap.bg-black.text-gray-200.font-mono.text-xs.py-2.px-3 {{exportLog}}
+    pre.pre-wrap.bg-black.text-gray-200.font-mono.text-xs.py-2.px-3.max-h-half.overflow-y-auto {{exportLog}}
 
 .bi.bi-spin.text-7xl.mx-auto.my-5.mx-auto(v-if="isLoading")
 
