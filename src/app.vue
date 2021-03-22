@@ -48,15 +48,11 @@ nav.bg-blue-500.text-white.flex.py-2.items-center.px-3
       span.underline T
       | )
 
-transition(
-  name="alert-transition",
-  enter-active-class="animated slideInDown",
-  leave-active-class="animated slideOutUp",
+alert.global-alert(
+  :auto-hide="3",
+  :message="message",
+  :status="status",
 )
-  .alert.py-2.px-3.absolute.w-full(
-    v-if="message",
-    :class="status === true ? 'bg-green-300' : 'bg-red-300'",
-  ) {{message}}
 
 transition(
   name="alert-transition",
@@ -113,7 +109,7 @@ transition(
                 @keydown.enter="doAcceptWord(word)",
                 :style="'width:' + word.Word.length + 'em'",
               )
-    bluebird-ui-pagination(
+    pagination(
       :total="total",
       v-model="page",
     )
@@ -130,10 +126,15 @@ import {
 } from 'vue';
 const {toHMS} = require('@/utils/format');
 import {isMac} from "@/utils/helper";
-import BluebirdUiPagination from "@/components/pagination";
+import Pagination from "@/components/pagination";
+import Alert from '@/components/alert';
 
 export default {
-  components: {BluebirdUiPagination},
+  components: {
+    Alert,
+    Pagination,
+  },
+
   setup() {
     const isLoading = ref(true);
     const isSaving = ref(false);
