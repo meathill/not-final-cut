@@ -283,7 +283,14 @@ export default {
     }
 
     onMounted(async() => {
-      const project = await axios.get('/api/project.json');
+      let project;
+      try {
+        project = await axios.get('/api/project.json');
+      } catch (e) {
+        message.value = 'Failed to load project. ' + e.message;
+        return;
+      }
+
       const {
         movie,
         rawResult,

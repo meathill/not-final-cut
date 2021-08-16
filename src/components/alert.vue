@@ -1,20 +1,19 @@
 <template lang="pug">
-.alert-container
-  transition(
-    name="alert-transition",
-    enter-active-class="animated slideInDown",
-    leave-active-class="animated slideOutUp",
+transition(
+  name="alert-transition",
+  enter-active-class="animated slideInDown",
+  leave-active-class="animated slideOutUp",
+)
+  .py-2.px-3.absolute.w-full.z-10(
+    v-if="visible && message",
+    :class="status === true ? 'bg-green-300' : 'bg-red-300'",
   )
-    .py-2.px-3.absolute.w-full.z-10(
-      v-if="visible && message",
-      :class="status === true ? 'bg-green-300' : 'bg-red-300'",
-    )
-      slot {{message}}
-      button.close(
-        v-if="dismissable",
-        type="button",
-        @click="doDismiss",
-      ) &times;
+    slot {{message}}
+    button.close(
+      v-if="dismissable",
+      type="button",
+      @click="doDismiss",
+    ) &times;
 </template>
 
 <script>
@@ -56,7 +55,7 @@ export default {
     let timeout;
     if (autoHide.value) {
       watch(message, value => {
-        clearTimeout(this.timeout);
+        clearTimeout(timeout);
         if (value) {
           visible.value = true;
           const duration = autoHide.value * 1000;
