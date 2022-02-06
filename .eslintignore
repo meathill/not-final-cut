@@ -5,7 +5,7 @@ extension/ui/node_modules
 
 # DEV
 a.js
-index.js
+main.ts
 main.js
 ext.js
 

@@ -1,8 +1,10 @@
+const isDev = process.env.NODE_ENV ==='development';
 module.exports = {
-  purge: [
-    './src/**/*.vue',
+  content: [
+    './index.html',
+    './src/App.{pug,vue,ts,tsx}',
+    './src/**/*.{vue,js,jsx,ts,tsx,pug}',
   ],
-  darkMode: false, // or 'media' or 'class'
   theme: {
     maxHeight: {
       'half': '50vh',

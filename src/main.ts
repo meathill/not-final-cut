@@ -1,7 +1,7 @@
 import {createApp} from 'vue';
-import App from './app';
+import App from './App.vue';
 import './style/base.css';
 import './style/app.styl';
 
-const index = createApp(App);
-index.mount('#app');
+const main = createApp(App);
+main.mount('#app');

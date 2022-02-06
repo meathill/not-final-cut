@@ -1,4 +1,4 @@
-function toHMS(ms) {
+export function toHMS(ms:number):string {
   let s = ms / 1000 >> 0;
   ms = ms % 1000;
   const result = [];
@@ -14,7 +14,3 @@ function toHMS(ms) {
   }
   return result.reverse().join(':') + '.' + ms;
 }
-
-module.exports = {
-  toHMS,
-};
